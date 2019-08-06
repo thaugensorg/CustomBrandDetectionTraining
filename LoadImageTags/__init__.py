@@ -1,5 +1,6 @@
 import logging
 import requests
+import json
 
 import azure.functions as func
 
@@ -11,12 +12,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     ProjectID = req.params.get('projectID')
     if not ProjectID:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('projectID')
+        return func.HttpResponse(
+             "Please pass a projectID and JSON containing valid labels on the query string and in the request body",
+             status_code=400
+        )
 
     if ProjectID:
         try:
@@ -24,7 +23,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         except ValueError:
             pass
         else:
-            name = req_body.get('projectID')
+            LabelDictionary = json.loads(req_body)
+            for (i in LabelDictionary.Labels) {
+                Label = trainer.create_tag(project.id, LabelDictionary.Labels[i])
+            }
+            return func.HttpResponse("Loaded " + i + " labels into " + ProjectID)
     else:
         return func.HttpResponse(
              "Please pass a projectID and JSON containing valid labels on the query string and in the request body",
