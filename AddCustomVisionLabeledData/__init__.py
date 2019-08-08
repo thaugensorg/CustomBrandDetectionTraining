@@ -10,14 +10,21 @@ from azure.cognitiveservices.vision.customvision.training.models import ImageFil
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
-    BlobUrl = req.params.get('blobUrl')
-    if not BlobUrl:
+    ProjectID = req.params.get('projectID')
+    if not ProjectID:
         return func.HttpResponse(
-                "Please pass a URL to a blob file containing the image to be added to training in this request on the query string.",
+                "Please pass the custom vision project id from the custom vision portal as a query string.",
                 status_code=400
         )
 
-    if BlobUrl:
+    BlobUrl = req.params.get('blobUrl')
+    if not BlobUrl:
+        return func.HttpResponse(
+                "Please pass a URL to a blob containing the image to be added to training in this request on the query string.",
+                status_code=400
+        )
+
+    if BlobUrl and ProjectID:
         ImageLabels = req.params.get('imageLabels')
         if not ImageLabels:
             ImageLabels = req.get_json()
@@ -27,16 +34,39 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     status_code=400
                 )
 
+                {
+                    "images": [
+                      {
+                        "url": "string",
+                        "tagIds": [
+                          "string"
+                        ],
+                        "regions": [
+                          {
+                            "tagId": "string",
+                            "left": 0.0,
+                            "top": 0.0,
+                            "width": 0.0,
+                            "height": 0.0
+                          }
+                        ]
+                      }
+                    ],
+                    "tagIds": [
+                      "string"
+                    ]
+                  }
+
         if ImageLabels:
             # https://pypi.org/project/custom_vision_client/
             # https://github.com/Azure-Samples/cognitive-services-python-sdk-samples/blob/master/samples/vision/custom_vision_training_samples.py
 
-            ENDPOINT = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Training/"
+            Endpoint = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Training/"
 
             # Get Cognitive Services Environment Variables
             TrainingKey = os.environ['trainingKey']
 
-            Trainer = CustomVisionTrainingClient(TrainingKey, endpoint=ENDPOINT)
+            Trainer = CustomVisionTrainingClient(TrainingKey, endpoint=Endpoint)
 
             Project = Trainer.create_project("CustomBrandDetection")
 
