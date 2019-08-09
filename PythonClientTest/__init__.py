@@ -33,6 +33,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if LabelsJson:
 
             ENDPOINT = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Training/"
+            ENDPOINT = "https://westus2.api.cognitive.microsoft.com"
             TrainingKey = os.environ['trainingKey']
             Trainer = CustomVisionTrainingClient(TrainingKey, endpoint=ENDPOINT)
 
