@@ -1,6 +1,8 @@
 import logging
 import time
 import os
+import requests
+import json
 
 import azure.functions as func
 
@@ -33,52 +35,26 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     "Please pass JSON containing the labels associated with this image on the query string or in the request body.",
                     status_code=400
                 )
-
-                {
-                    "images": [
-                      {
-                        "url": "string",
-                        "tagIds": [
-                          "string"
-                        ],
-                        "regions": [
-                          {
-                            "tagId": "string",
-                            "left": 0.0,
-                            "top": 0.0,
-                            "width": 0.0,
-                            "height": 0.0
-                          }
-                        ]
-                      }
-                    ],
-                    "tagIds": [
-                      "string"
-                    ]
-                  }
-
+                
         if ImageLabels:
             # https://pypi.org/project/custom_vision_client/
             # https://github.com/Azure-Samples/cognitive-services-python-sdk-samples/blob/master/samples/vision/custom_vision_training_samples.py
 
-            Endpoint = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Training/"
+            BodyDictionary = json.loads(ImageLabels)
+            BodyDictionary['images'][0]['url'] = BlobUrl
+
+            Endpoint = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Training/projects/" + ProjectID + "/images/urls"
 
             # Get Cognitive Services Environment Variables
             TrainingKey = os.environ['trainingKey']
 
-            Trainer = CustomVisionTrainingClient(TrainingKey, endpoint=Endpoint)
+            headers = {'Training-key': TrainingKey}
+            # params = {'projectID': ProjectID, }
+            response = requests.post(Endpoint, headers=headers,
+                                    json=BodyDictionary)
 
-            Project = Trainer.create_project("CustomBrandDetection")
+            return func.HttpResponse(response.body)
 
-            print("Adding images...")
-
-            # Set image_url to the URL of the image that will be analyzed
-            ImageUrl = BlobUrl
-
-            # ImageFileCreateEntry(name=file_name, contents=image_contents.read(), tag_ids=[hemlock_tag.id])
-
-            Trainer.create_images_from_urls(Project.project_id, ImageUrl, tag_ids=[ImageLabels])
-            # upload_result = Trainer.create_images_from_files(Project.id, images=image_list)
 
     else:
         return func.HttpResponse(
