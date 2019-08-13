@@ -12,13 +12,6 @@ from azure.cognitiveservices.vision.customvision.training.models import ImageUrl
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
-    ProjectID = req.params.get('projectID')
-    if not ProjectID:
-        return func.HttpResponse(
-                "Please pass the custom vision project id from the custom vision portal as a query string.",
-                status_code=400
-        )
-
     BlobUrl = req.params.get('blobUrl')
     if not BlobUrl:
         return func.HttpResponse(
@@ -26,7 +19,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 status_code=400
         )
 
-    if BlobUrl and ProjectID:
+    if BlobUrl:
         ImageLabels = req.params.get('imageLabels')
         if not ImageLabels:
             ImageLabels = req.get_json()
@@ -49,6 +42,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             Endpoint = "https://westus2.api.cognitive.microsoft.com"
 
             # Get Cognitive Services Environment Variables
+            ProjectID = os.environ["projectID"]
             TrainingKey = os.environ['trainingKey']
 
             # strip out list of Image Labels passed in request
@@ -68,7 +62,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             # create the image from a url and attach the appropriate tags as labels.
             Trainer.create_images_from_urls(ProjectID, [ImageUrlCreateEntry(url=BlobUrl, tag_ids=Labels) ])
 
-            return func.HttpResponse(str(CountOfTagsAppliedToTimage) + " Tages applied to image at url: " BlobUrl)
+            return func.HttpResponse(str(CountOfTagsAppliedToTimage) + " Tages applied to image at url: " + BlobUrl)
 
 
     else:
