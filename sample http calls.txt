@@ -26,8 +26,9 @@ Content-Type: application/json
 {"images":[{"url": "https://semisupervisedstorage.blob.core.windows.net/testimages/hemlock_1.jpg","tagIds":["Hemlock"]}],"tagIds":["Hemlock"]}
 
 {"Labels":["Hemlock","Japanese Cherry"]}
+{"Labels":["Hemlock"]}
 
-projectID
+http://localhost:7071/api/AddLabeledDataClient/?blobUrl=https://semisupervisedstorage.blob.core.windows.net/testimages/hemlock_2.jpg&imageLabels={%22Labels%22:[%22Hemlock%22]}
 
 http://localhost:7071/api/AddCustomVisionLabeledData/?projectID=8d9d12d1-5d5c-4893-b915-4b5b3201f78e&blobUrl=https://semisupervisedstorage.blob.core.windows.net/testimages/hemlock_1.jpg&imageLabels={%22images%22:[{%22url%22:%20%22https://semisupervisedstorage.blob.core.windows.net/testimages/hemlock_1.jpg%22,%22tagIds%22:[%22Hemlock%22]}],%22tagIds%22:[%22Hemlock%22]}
 
