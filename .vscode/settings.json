@@ -5,5 +5,5 @@
   "azureFunctions.projectRuntime": "~2",
   "debug.internalConsoleOptions": "neverOpen",
   "azureFunctions.preDeployTask": "func: pack",
-  "python.pythonPath": "CustomBrandDetectionTraining\\Scripts\\python.exe"
+  "python.pythonPath": "C:\\Users\\thaugen\\AppData\\Local\\Programs\\Python\\Python36\\python.exe"
 }
