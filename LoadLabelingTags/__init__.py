@@ -14,12 +14,9 @@ import azure.functions as func
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
-    ProjectID = req.params.get('projectID')
-    if not ProjectID:
-        return func.HttpResponse(
-             "Please pass a projectID on the query string.",
-             status_code=400
-        )
+    # Get Cognitive Services Environment Variables
+    ProjectID = os.environ["projectID"]
+    TrainingKey = os.environ['trainingKey']
 
     if ProjectID:
         LabelsJson = req.params.get('labelsJson')
@@ -35,7 +32,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             # the consol app at this address shows how to properly form URLs for Cognitive Services custom model development https://westus2.dev.cognitive.microsoft.com/docs/services/fde264b7c0e94a529a0ad6d26550a761/operations/59568ae208fa5e09ecb9984e/console
             Endpoint = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Training/projects/" + ProjectID + "/tags"
-            TrainingKey = os.environ['trainingKey']
 
             # set looping tracking variables
             CountOfLabelsAdded = 0

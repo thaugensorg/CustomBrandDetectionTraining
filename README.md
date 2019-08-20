@@ -1,4 +1,4 @@
-This script deploys the default static analysis model from Azure Cognitive Services Vision API. This model works with the semisupervised framework to marshal the vision API and return the JSON results of the analysis.  The module can be configured to perform any of the vision analysis services by setting the appropriate environment variable.
+This script deploys the default training analysis model from Azure Cognitive Services Custom Vision API. This model works with the semisupervised framework to marshal the vision API and return the JSON results of the analysis.  The module can be configured to perform any of the vision analysis services by setting the appropriate environment variable.
 
 Start by signing up for a free cognitive services account https://azure.microsoft.com/en-us/try/cognitive-services/ if you do not already have one.
 
