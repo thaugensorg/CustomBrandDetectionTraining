@@ -22,6 +22,8 @@ Then install required software:
 - install node.js from here: https://nodejs.org/en/download/
 - install the Docker client from here: https://docs.docker.com/docker-for-windows/install/
 
+Now before you do anything, you want to avoid environment hell, so read this on working with virtual environments in VS Code: https://code.visualstudio.com/docs/python/environments.  The key is making sure when you select an environment in VS Code the environment is activating.  You will know as the begining of the line in the command prompt lists the name of the virtual environment that is active in green.  If there is no grean name then you are working in the default environment.  You cannot run this project in the default (also known as base) environment because Azure functions requires a virtual environment by default.  You can turn this off but it is generally a bad idea.
+
 Start VS Code and open a terminal.  From there run the following commands:
 - "npm install -g azure-functions-core-tools" to install azure functions core tools into VS Code.  This enables you to work with azure functions from within VS Code directly enabling things like deploy.
 
