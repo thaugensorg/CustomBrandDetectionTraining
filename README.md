@@ -29,6 +29,8 @@ Start VS Code and open a terminal.  From there run the following commands:
 - install Azure Functions Core Tools from here: npm i -g azure-functions-core-tools --unsafe-perm true  For more information see <https://github.com/Azure/azure-functions-core-tools#installing>
 
 - "pip install -azure-functions" to install azure functions core tools into VS Code.  This enables you to work with azure functions from within VS Code directly enabling things like deploy.
+=======
+>>>>>>> e89aaa765eaeafb473e2b6bcf812e8f095f0055a
 
 - "pip install requests" to install http handling into VS Code.  This will allow you to work with HTTP requests which is the protocol used to communicate between the framework and the model.
 
