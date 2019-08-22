@@ -2,7 +2,7 @@
 
 This script deploys the default training analysis model from Azure Cognitive Services Custom Vision API. This model works with the semisupervised framework to marshal the vision API and return the JSON results of the analysis.  The module can be configured to perform any of the vision analysis services by setting the appropriate environment variable.
 
-Start by signing up for a free cognitive services account <https://azure.microsoft.com/en-us/try/cognitive-services/> if you do not already have one.
+Start by signing up for a free cognitive services account <https://azure.microsoft.com/en-us/try/cognitive-services/> if you do not already have one.  Then log into the Cognitive Services custom model project management portal, it is separate from the Azure Portal, and set up your project.  The portal can be found here: <https://www.customvision.ai>
 
 Next, upload both of the powershell scripts from the imageAnalysisModel and the semisupervisedFramework, .ps1 files you will find in the solutions directories, to Azure to your azure subscription.  This article
 shows how to upload and run powershell scripts in Azure:
