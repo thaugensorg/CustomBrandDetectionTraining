@@ -2,7 +2,7 @@
 
 This script deploys the default training analysis model from Azure Cognitive Services Custom Vision API. This model works with the semisupervised framework to marshal the vision API and return the JSON results of the analysis.  The module can be configured to perform any of the vision analysis services by setting the appropriate environment variable.
 
-Start by signing up for a free cognitive services account <https://azure.microsoft.com/en-us/try/cognitive-services/> if you do not already have one.
+Start by signing up for a free cognitive services account <https://azure.microsoft.com/en-us/try/cognitive-services/> if you do not already have one.  Then log into the Cognitive Services custom model project management portal, it is separate from the Azure Portal, and set up your project.  The portal can be found here: <https://www.customvision.ai>
 
 Next, upload both of the powershell scripts from the imageAnalysisModel and the semisupervisedFramework, .ps1 files you will find in the solutions directories, to Azure to your azure subscription.  This article
 shows how to upload and run powershell scripts in Azure:
@@ -52,15 +52,7 @@ Then click on the extension icon on the far left in VS Code and add these VS Cod
 
 Now log into Azure from VS Code: <https://www.ntweekly.com/2018/01/10/connect-microsoft-azure-directly-visual-studio-code/>
 
-Finally, enter this command in the command prompt to deploy your python code to the server:
-
-func azure functionapp publish {name of your app} --build-native-deps
-for example
-func azure functionapp publish brandDetectionApp --build-native-deps
-
-note: the reason you cannot use the VS code deploy command is your python dependencies load on the server
-will fail as a large number of imports do not have a required public registry specifying how to fetch the
-import.
+Now you click on the Azure plug in icon on the left of your VS Code environment and open your subscription then right click on your project and select 
 
 Now you are ready to start coding.  Start by running this Python Azure Function quick start.  It will provide a very simple function that takes in a name parameter and returns a hello response.  You will then be able to add your code to this function and start deploying and running it.
 <https://docs.microsoft.com/en-us/azure/cognitive-services/computer-vision/quickstarts/python-analyze>
