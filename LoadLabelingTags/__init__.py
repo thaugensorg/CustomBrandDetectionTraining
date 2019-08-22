@@ -21,8 +21,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if ProjectID:
         LabelsJson = req.params.get('labelsJson')
         if not LabelsJson:
-            LabelsJson = req.get_json()
-            if not LabelsJson:
+            try:
+                LabelsJson = req.get_json()
+            except:
                 return func.HttpResponse(
                     "Please pass JSON containing valid labels on the query string or in the request body.",
                     status_code=400
@@ -55,6 +56,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             return func.HttpResponse("Loaded " + str(CountOfLabelsAdded) + " labels into project id: " + ProjectID + "  Note: " + str(CountOfDuplicateLabels) + " labels were duplicates to existing project labels.  See log file for label names.")
     else:
         return func.HttpResponse(
-             "Please pass a projectID and JSON containing valid labels on the query string and in the request body",
+             "Please configure projectID and/or trainingKey in your environment variables.",
              status_code=400
         )

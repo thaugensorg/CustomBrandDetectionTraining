@@ -22,8 +22,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if BlobUrl:
         ImageLabels = req.params.get('imageLabels')
         if not ImageLabels:
-            ImageLabels = req.get_json()
-            if not ImageLabels:
+            try:
+                ImageLabels = req.get_json()
+            except:
                 return func.HttpResponse(
                     "Please pass JSON containing the labels associated with this image on the query string or in the request body.",
                     status_code=400
