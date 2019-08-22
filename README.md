@@ -52,15 +52,7 @@ Then click on the extension icon on the far left in VS Code and add these VS Cod
 
 Now log into Azure from VS Code: <https://www.ntweekly.com/2018/01/10/connect-microsoft-azure-directly-visual-studio-code/>
 
-Finally, enter this command in the command prompt to deploy your python code to the server:
-
-func azure functionapp publish {name of your app} --build-native-deps
-for example
-func azure functionapp publish brandDetectionApp --build-native-deps
-
-note: the reason you cannot use the VS code deploy command is your python dependencies load on the server
-will fail as a large number of imports do not have a required public registry specifying how to fetch the
-import.
+Now you click on the Azure plug in icon on the left of your VS Code environment and open your subscription then right click on your project and select 
 
 Now you are ready to start coding.  Start by running this Python Azure Function quick start.  It will provide a very simple function that takes in a name parameter and returns a hello response.  You will then be able to add your code to this function and start deploying and running it.
 <https://docs.microsoft.com/en-us/azure/cognitive-services/computer-vision/quickstarts/python-analyze>

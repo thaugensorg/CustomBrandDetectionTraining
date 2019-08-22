@@ -1,5 +1,5 @@
 {
-  "azureFunctions.deploySubpath": "CustomBrandDetectionTraining.zip",
+  "azureFunctions.deploySubpath": "SemisupervisedDataEvaluationModel.zip",
   "azureFunctions.pythonVenv": ".env",
   "azureFunctions.projectLanguage": "Python",
   "azureFunctions.projectRuntime": "~2",
