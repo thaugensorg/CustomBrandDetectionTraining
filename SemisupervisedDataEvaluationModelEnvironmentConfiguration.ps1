@@ -98,6 +98,16 @@ az functionapp config appsettings set `
     --resource-group $modelResourceGroupName `
     --settings "subscriptionKey=Null"
 
+az functionapp config appsettings set `
+    --name $ModelAppName `
+    --resource-group $modelResourceGroupName `
+    --settings "projectID=Null"
+
+az functionapp config appsettings set `
+    --name $ModelAppName `
+    --resource-group $modelResourceGroupName `
+    --settings "trainingKey=Null"
+
 #gitrepo=https://github.com/thaugensorg/semi-supervisedModelSolution.git
 #token=<Replace with a GitHub access token>
 
