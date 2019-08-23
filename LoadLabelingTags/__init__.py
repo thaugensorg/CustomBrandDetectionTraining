@@ -22,8 +22,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         LabelsJson = req.params.get('labelsJson')
         if not LabelsJson:
             try:
-                LabelsJson = req.get_json()
-            except:
+                LabelsJson = req.form['LabelsJson']
+
+            except Exception as e:
                 return func.HttpResponse(
                     "Please pass JSON containing valid labels on the query string or in the request body.",
                     status_code=400
