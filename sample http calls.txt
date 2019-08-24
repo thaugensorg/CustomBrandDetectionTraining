@@ -25,7 +25,7 @@ Content-Type: application/json
 
 {"images":[{"url": "https://semisupervisedstorage.blob.core.windows.net/testimages/hemlock_1.jpg","tagIds":["Hemlock"]}],"tagIds":["Hemlock"]}
 
-{"Labels":["Hemlock","Japanese Cherry"]}
+http://localhost:7071/api/LoadLabelingTags/?LabelsJson={"Labels":["Hemlock","Japanese Cherry"]}
 {"Labels":["Hemlock"]}
 
 http://localhost:7071/api/AddLabeledDataClient/?blobUrl=https://semisupervisedstorage.blob.core.windows.net/testimages/hemlock_2.jpg&imageLabels={%22Labels%22:[%22Hemlock%22]}

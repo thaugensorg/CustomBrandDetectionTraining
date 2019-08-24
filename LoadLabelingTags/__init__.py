@@ -19,14 +19,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     TrainingKey = os.environ['trainingKey']
 
     if ProjectID:
-        LabelsJson = req.params.get('labelsJson')
+        LabelsJson = req.params.get('LabelsJson')
         if not LabelsJson:
             try:
                 LabelsJson = req.form['LabelsJson']
 
             except Exception as e:
+                Message = str(e)
                 return func.HttpResponse(
-                    "Please pass JSON containing valid labels on the query string or in the request body.",
+                    "Please pass JSON containing valid labels on the query string or in the request body using the parameter name: LabelsJson.  Error: " + Message,
                     status_code=400
                 )
         
