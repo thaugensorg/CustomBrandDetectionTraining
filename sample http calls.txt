@@ -17,15 +17,19 @@ Content-Type: application/json
 
 }
 
+{"LabelingTags":["Hemlock","Japanese Cherry"]}
+
 
 POST https://westus2.api.cognitive.microsoft.com/customvision/v3.0/training/projects/8d9d12d1-5d5c-4893-b915-4b5b3201f78e/images/urls HTTP/1.1
 Host: westus2.api.cognitive.microsoft.com
 Training-Key: 81e565b1236b44e886b207542c3cdd2d
 Content-Type: application/json
 
+http://localhost:7071/api/AddLabeledDataClient/?LabelsJson={"LabelingTags":["Hemlock","Japanese Cherry"]}
+
 {"images":[{"url": "https://semisupervisedstorage.blob.core.windows.net/testimages/hemlock_1.jpg","tagIds":["Hemlock"]}],"tagIds":["Hemlock"]}
 
-http://localhost:7071/api/LoadLabelingTags/?LabelsJson={"Labels":["Hemlock","Japanese Cherry"]}
+{"Labels":["Hemlock","Japanese Cherry"]}
 {"Labels":["Hemlock"]}
 
 http://localhost:7071/api/AddLabeledDataClient/?blobUrl=https://semisupervisedstorage.blob.core.windows.net/testimages/hemlock_2.jpg&imageLabels={%22Labels%22:[%22Hemlock%22]}

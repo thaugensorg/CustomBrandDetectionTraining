@@ -47,8 +47,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             TrainingKey = os.environ['trainingKey']
 
             # strip out list of Image Labels passed in request
-            LabelDictionary = json.loads(ImageLabels)
-            ImageLabels = LabelDictionary['Labels']
+            ImageLabels = json.loads(ImageLabels)
 
             # retrieve tags from project and loop through them to find tag ids for tags that need to be applied to the image
             Trainer = CustomVisionTrainingClient(TrainingKey, endpoint=Endpoint)
