@@ -10,7 +10,7 @@ from azure.cognitiveservices.vision.customvision.training import CustomVisionTra
 from azure.cognitiveservices.vision.customvision.training.models import ImageFileCreateEntry
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
+    logging.info('ML Professoar HTTP trigger function AddLabeledDataHttp processed a request.')
 
     # Get Cognitive Services Environment Variables
     ProjectID = os.environ["projectID"]

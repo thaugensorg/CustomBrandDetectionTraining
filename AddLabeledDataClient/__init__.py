@@ -10,7 +10,7 @@ from azure.cognitiveservices.vision.customvision.training import CustomVisionTra
 from azure.cognitiveservices.vision.customvision.training.models import ImageUrlCreateEntry
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
+    logging.info('ML Professoar HTTP trigger function AddLabeledDataClient processed a request.')
 
     BlobUrl = req.params.get('blobUrl')
     if not BlobUrl:
