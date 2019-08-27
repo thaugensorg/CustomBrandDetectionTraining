@@ -16,7 +16,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # Get Cognitive Services Environment Variables
     projectID = os.environ["projectID"]
     trainingKey = os.environ['trainingKey']
-    predictionKey = os.environ['predictionKey']
     publish_iteration_name = "classifyModel"
     prediction_resource_id = os.environ['predictionID']
 
