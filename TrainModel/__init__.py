@@ -8,7 +8,6 @@ import azure.functions as func
 
 from azure.cognitiveservices.vision.customvision.training import CustomVisionTrainingClient
 from azure.cognitiveservices.vision.customvision.training.models import ImageUrlCreateEntry
-from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('ML Professoar HTTP trigger function TrainModel processed a request.')
