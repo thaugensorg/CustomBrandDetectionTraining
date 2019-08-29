@@ -34,10 +34,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             # https://pypi.org/project/custom_vision_client/
             # https://github.com/Azure-Samples/cognitive-services-python-sdk-samples/blob/master/samples/vision/custom_vision_training_samples.py
 
-            # BodyDictionary = json.loads(ImageLabels)
-            # BodyDictionary['images'][0]['url'] = BlobUrl
-
-
             Labels = []
             CountOfTagsAppliedToTimage = 0
             Endpoint = "https://westus2.api.cognitive.microsoft.com"

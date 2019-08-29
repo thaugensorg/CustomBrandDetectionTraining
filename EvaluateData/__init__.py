@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import requests
 
 import azure.functions as func
 
@@ -23,29 +24,32 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             name = req_body.get('name')
 
     if name:
-
-        endpoint = "https://westus2.api.cognitive.microsoft.com"
-
         # Get Cognitive Services Environment Variables
         projectID = os.environ["projectID"]
         trainingKey = os.environ['trainingKey']
         predictionKey = os.environ['predictionKey']
+        clientEndpoint = "https://westus2.api.cognitive.microsoft.com"
 
-        trainer = CustomVisionTrainingClient(trainingKey, endpoint=endpoint)
-        predictor = CustomVisionPredictionClient(predictionKey, endpoint=endpoint)
-
+        trainer = CustomVisionTrainingClient(trainingKey, endpoint=clientEndpoint)
         iterations = trainer.get_iterations(projectID)
         currentIteration = iterations[0]
         currentIterationName = currentIteration.publish_name
-        results = predictor.classify_image_url(projectID, currentIterationName, name)
 
+        httpEndpoint = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Prediction/" + projectID + "/classify/iterations/" + currentIterationName + "/url"
+
+        headers = {'Prediction-Key': predictionKey, 'Content-Type': 'application/json'}
+        data = {"url": name}
+        response = requests.post(httpEndpoint, headers = headers,
+                                json = data)
+        response.raise_for_status()
+
+        responseDictionary = response.json()
+        Prediction = responseDictionary['predictions'][0]
+        confidence = Prediction['probability']
+        responseDictionary['confidence'] = confidence
+            
         # Display the results.
-        resultsJson = json.dumps(results.predictions[0]])
-        for prediction in results.predictions:
-            print("\t" + prediction.tag_name +
-                 ": {0:.2f}%".format(prediction.probability * 100))
-
-        return func.HttpResponse(resultsJson)
+        return func.HttpResponse(json.dumps(responseDictionary))
     else:
         return func.HttpResponse(
              "Please pass a name on the query string or in the request body",
