@@ -20,10 +20,8 @@ while([string]::IsNullOrWhiteSpace($modelStorageAccountName))
   Write-Host "Storage account name must not have upper case letters." -ForegroundColor "Red"}
   }
 
-$cognitiveServicesAccountName = Read-Host -Prompt 'Input the name of the resource group that you want to create for this installation of the model.  (default=ImageDetection)'
+$cognitiveServicesAccountName = Read-Host -Prompt 'Input the name of the Azure Cognitive Services resource that you want to create for this installation of the model.  (default=ImageDetection)'
   if ([string]::IsNullOrWhiteSpace($cognitiveServicesAccountName)) {$cognitiveServicesAccountName = "ImageDetection"}
-  
-Write-Host "Storage Account Name: " $modelStorageAccountName -ForegroundColor "Green"
 
 $modelStorageAccountKey = $null
 
@@ -65,30 +63,31 @@ az functionapp create `
   --os-type "Linux" `
   --runtime "python"
 
-Write-Host "Creating cognitive services account." -ForegroundColor "Green"
+Write-Host "Creating cognitive services account." $ModelAppName"Training" " and " $ModelAppName"Prediction" -ForegroundColor "Green"
+Write-Host "Note: Azure custom vision is only available in a limited set of regions.  If you have selected aq region for your function app that is not supported by custom vision you will be prompted for a new location."    
+
+if ("southcentralus", "westus2", "eastus", "eastus2", "northeurope", "westeurope", "southeastasia", "japaneast", "australiaeast", "centralindia", "uksouth","northcentralus" -contains $modelLocation) `
+  {$modelCogServicesLocation = $modelLocation}
+else
+  {
+    $modelCogServicesLocation = Read-Host -Prompt 'Input the Azure location, data center, where you want your cog services feature deployed.  Note, as of 8/29/19, custom vision features are only available in southcentralus, westus2, eastus, eastus2, northeurope, westeurope, southeastasia, japaneast, australiaeast, centralindia, uksouth, northcentralus.  (default=westus2)'
+    if ([string]::IsNullOrWhiteSpace($modelCogServicesLocation)) {$modelCogServicesLocation = "westus2"}  
+  }
 
 az cognitiveservices account create `
-    --name "brandDetection" `
-    --resource-group $modelResourceGroupName `
-    --kind ComputerVision `
-    --sku F0 `
-    --location westus `
-    --yes
-    
-az cognitiveservices account create `
-    --name "ImageDetectionTraining" `
+    --name $ModelAppName"Training" `
     --resource-group $modelResourceGroupName `
     --kind CustomVision.Training `
-    --sku F0 `
-    --location "westus2" `
+    --sku S0 `
+    --location $modelCogServicesLocation `
     --yes
 
 az cognitiveservices account create `
-    --name "ImageDetectionPrediction" `
+    --name $ModelAppName"Prediction" `
     --resource-group $modelResourceGroupName `
     --kind CustomVision.Prediction `
-    --sku F0 `
-    --location "westus2" `
+    --sku S0 `
+    --location $modelCogServicesLocation `
     --yes
 
 Write-Host "Creating app config setting: subscriptionKey" -ForegroundColor "Green"
@@ -98,15 +97,29 @@ az functionapp config appsettings set `
     --resource-group $modelResourceGroupName `
     --settings "subscriptionKey=Null"
 
+Write-Host "Creating app config setting: projectID for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
+
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
     --settings "projectID=Null"
 
+Write-Host "Creating app config setting: trainingKey for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
+
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
     --settings "trainingKey=Null"
+
+Write-Host "Creating app config setting: predictionKey for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
+
+az functionapp config appsettings set `
+    --name $ModelAppName `
+    --resource-group $modelResourceGroupName `
+    --settings "predictionKey=Null"
+
+Write-Host "Creating app config setting: predictionID for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
+Write-Host "This is called Resource ID in the Cog Services portal and can be found under the Prediction resource on the home page configuration settings of your cog services account https://www.customvision.ai/projects#/settings" -ForegroundColor "Yellow"
 
 az functionapp config appsettings set `
     --name $ModelAppName `
