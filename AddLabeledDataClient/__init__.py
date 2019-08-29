@@ -12,14 +12,14 @@ from azure.cognitiveservices.vision.customvision.training.models import ImageUrl
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('ML Professoar HTTP trigger function AddLabeledDataClient processed a request.')
 
-    BlobUrl = req.params.get('blobUrl')
-    if not BlobUrl:
+    dataBlobUrl = req.params.get('dataBlobUrl')
+    if not dataBlobUrl:
         return func.HttpResponse(
                 "Please pass a URL to a blob containing the image to be added to training in this request on the query string.",
                 status_code=400
         )
 
-    if BlobUrl:
+    if dataBlobUrl:
         ImageLabels = req.params.get('imageLabels')
         if not ImageLabels:
             try:
@@ -56,9 +56,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         break
             
             # create the image from a url and attach the appropriate tags as labels.
-            Trainer.create_images_from_urls(ProjectID, [ImageUrlCreateEntry(url=BlobUrl, tag_ids=Labels) ])
+            Trainer.create_images_from_urls(ProjectID, [ImageUrlCreateEntry(url=dataBlobUrl, tag_ids=Labels) ])
 
-            return func.HttpResponse(str(CountOfTagsAppliedToTimage) + " Tages applied to image at url: " + BlobUrl)
+            return func.HttpResponse(str(CountOfTagsAppliedToTimage) + " Tag(s) applied to image at url: " + dataBlobUrl)
 
 
     else:

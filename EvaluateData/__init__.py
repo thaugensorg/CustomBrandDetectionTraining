@@ -14,16 +14,16 @@ from azure.cognitiveservices.vision.customvision.prediction import CustomVisionP
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
-    name = req.params.get('name')
-    if not name:
+    dataBlobUrl = req.params.get('dataBlobUrl')
+    if not dataBlobUrl:
         try:
             req_body = req.get_json()
         except ValueError:
             pass
         else:
-            name = req_body.get('name')
+            dataBlobUrl = req_body.get('dataBlobUrl')
 
-    if name:
+    if dataBlobUrl:
         # Get Cognitive Services Environment Variables
         projectID = os.environ["projectID"]
         trainingKey = os.environ['trainingKey']
@@ -38,7 +38,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         httpEndpoint = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Prediction/" + projectID + "/classify/iterations/" + currentIterationName + "/url"
 
         headers = {'Prediction-Key': predictionKey, 'Content-Type': 'application/json'}
-        data = {"url": name}
+        data = {"url": dataBlobUrl}
         response = requests.post(httpEndpoint, headers = headers,
                                 json = data)
         response.raise_for_status()
@@ -52,6 +52,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(json.dumps(responseDictionary))
     else:
         return func.HttpResponse(
-             "Please pass a name on the query string or in the request body",
+             "Please pass a dataBlobUrl on the query string or in the request body",
              status_code=400
         )

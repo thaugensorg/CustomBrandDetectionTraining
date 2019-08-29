@@ -14,9 +14,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     # Get Cognitive Services Environment Variables
     ProjectID = os.environ["projectID"]
+    TrainingKey = os.environ['trainingKey']
 
     if ProjectID:
-        BlobUrl = req.params.get('blobUrl')
+        BlobUrl = req.params.get('dataBlobUrl')
         if not BlobUrl:
             return func.HttpResponse(
                     "Please pass a URL to a blob containing the image to be added to training in this request on the query string.",
@@ -43,11 +44,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 Endpoint = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Training/projects/" + ProjectID + "/images/urls"
 
-                # Get Cognitive Services Environment Variables
-                TrainingKey = os.environ['trainingKey']
-
                 headers = {'Training-key': TrainingKey}
-                # params = {'projectID': ProjectID, }
                 response = requests.post(Endpoint, headers=headers,
                                         json=BodyDictionary)
 
