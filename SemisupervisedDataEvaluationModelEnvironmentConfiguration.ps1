@@ -78,7 +78,7 @@ az cognitiveservices account create `
     --name $ModelAppName"Training" `
     --resource-group $modelResourceGroupName `
     --kind CustomVision.Training `
-    --sku S0 `
+    --sku S1 `
     --location $modelCogServicesLocation `
     --yes
 
@@ -86,7 +86,7 @@ az cognitiveservices account create `
     --name $ModelAppName"Prediction" `
     --resource-group $modelResourceGroupName `
     --kind CustomVision.Prediction `
-    --sku S0 `
+    --sku S1 `
     --location $modelCogServicesLocation `
     --yes
 
