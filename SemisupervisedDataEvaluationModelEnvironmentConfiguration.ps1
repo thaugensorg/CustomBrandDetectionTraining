@@ -78,7 +78,7 @@ az cognitiveservices account create `
     --name $ModelAppName"Training" `
     --resource-group $modelResourceGroupName `
     --kind CustomVision.Training `
-    --sku S1 `
+    --sku S0 `
     --location $modelCogServicesLocation `
     --yes
 
@@ -86,9 +86,23 @@ az cognitiveservices account create `
     --name $ModelAppName"Prediction" `
     --resource-group $modelResourceGroupName `
     --kind CustomVision.Prediction `
-    --sku S1 `
+    --sku S0 `
     --location $modelCogServicesLocation `
     --yes
+
+$cog_services_training_key = `
+  (get-AzureRmCognitiveServicesAccountKey `
+    -resourceGroupName $modelResourceGroupName `
+    -AccountName $accountName).Key1
+
+Write-Host "Creating cognitive services custom vision project: " + $ModelAppName +  + "CustomVisionProject" -ForegroundColor "Green"
+
+$url = "https://" + $modelCogServicesLocation + ".api.cognitive.microsoft.com/customvision/v3.0/training/projects?name=" + $ModelAppName + "CustomVisionProject"
+
+$headers = @{}
+$headers.add("Training-Key", $cog_services_training_key)
+
+Invoke-RestMethod -Uri $url -Headers $headers -Method Post | ConvertTo-Json
 
 Write-Host "Creating app config setting: subscriptionKey" -ForegroundColor "Green"
 

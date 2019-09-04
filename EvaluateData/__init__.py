@@ -41,7 +41,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         data = {"url": dataBlobUrl}
         response = requests.post(httpEndpoint, headers = headers,
                                 json = data)
-        response.raise_for_status()
+        if response.status_code != 200:
+            return func.HttpResponse(json.dumps(response))
 
         responseDictionary = response.json()
         Prediction = responseDictionary['predictions'][0]
