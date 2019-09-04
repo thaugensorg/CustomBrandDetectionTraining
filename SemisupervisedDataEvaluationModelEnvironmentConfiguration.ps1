@@ -74,8 +74,10 @@ else
     if ([string]::IsNullOrWhiteSpace($modelCogServicesLocation)) {$modelCogServicesLocation = "westus2"}  
   }
 
+$accountName = $ModelAppName + "Training"
+
 az cognitiveservices account create `
-    --name $ModelAppName"Training" `
+    --name $accountName `
     --resource-group $modelResourceGroupName `
     --kind CustomVision.Training `
     --sku S0 `
@@ -104,7 +106,7 @@ $headers.add("Training-Key", $cog_services_training_key)
 
 Invoke-RestMethod -Uri $url -Headers $headers -Method Post | ConvertTo-Json
 
-Write-Host "Creating app config setting: subscriptionKey" -ForegroundColor "Green"
+Write-Host "Creating app config setting: subscriptionKey.  There is no default value and this key must be filled in after deployment." -ForegroundColor "Yellow"
 
 az functionapp config appsettings set `
     --name $ModelAppName `
@@ -118,19 +120,26 @@ az functionapp config appsettings set `
     --resource-group $modelResourceGroupName `
     --settings "projectID=Null"
 
-Write-Host "Creating app config setting: trainingKey for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
+Write-Host "Creating app config setting: trainingKey for cognitive services." -ForegroundColor "Green"
 
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
-    --settings "trainingKey=Null"
+    --settings "trainingKey=$cog_services_training_key"
 
-Write-Host "Creating app config setting: predictionKey for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
+Write-Host "Creating app config setting: predictionKey for cognitive services." -ForegroundColor "Green"
+
+$accountName = $ModelAppName + "Prediction"
+
+$cog_services_prediction_key = `
+  (get-AzureRmCognitiveServicesAccountKey `
+    -resourceGroupName $modelResourceGroupName `
+    -AccountName $accountName).Key1
 
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
-    --settings "predictionKey=Null"
+    --settings "predictionKey=$cog_services_prediction_key"
 
 Write-Host "Creating app config setting: predictionID for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
 Write-Host "This is called Resource ID in the Cog Services portal and can be found under the Prediction resource on the home page configuration settings of your cog services account https://www.customvision.ai/projects#/settings" -ForegroundColor "Yellow"
