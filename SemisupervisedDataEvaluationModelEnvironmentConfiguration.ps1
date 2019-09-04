@@ -19,9 +19,6 @@ while([string]::IsNullOrWhiteSpace($modelStorageAccountName))
 
 $modelLocation = Read-Host -Prompt 'Input the Azure location, data center, where you want this solution deployed.  Note, if you will be using Python functions as part of your solution, As of 8/1/19, Python functions are only available in eastasia, eastus, northcentralus, northeurope, westeurope, and westus.  If you deploy your solution in a different data center network transit time may affect your solution performance.  (default=westus)'
   if ([string]::IsNullOrWhiteSpace($modelLocation)) {$modelLocation = "westus"}
-  
-$cognitiveServicesAccountName = Read-Host -Prompt 'Input the name of the Azure Cognitive Services resource that you want to create for this installation of the model.  (default=ImageDetection)'
-  if ([string]::IsNullOrWhiteSpace($cognitiveServicesAccountName)) {$cognitiveServicesAccountName = "ImageDetection"}
 
 $modelStorageAccountKey = $null
 
@@ -97,9 +94,9 @@ $cog_services_training_key = `
     -resourceGroupName $modelResourceGroupName `
     -AccountName $accountName).Key1
 
-Write-Host "Creating cognitive services custom vision project: " + $ModelAppName +  + "CustomVisionProject" -ForegroundColor "Green"
+Write-Host "Creating cognitive services custom vision project: " + $ModelAppName + "CustomVisionProject" -ForegroundColor "Green"
 
-$url = "https://" + $modelCogServicesLocation + ".api.cognitive.microsoft.com/customvision/v3.0/training/projects?name=" + $ModelAppName + "CustomVisionProject"
+$url = "https://" + $modelCogServicesLocation + ".api.cognitive.microsoft.com/customvision/v3.0/training/projects?name=" + $accountName + "CustomVisionProject"
 
 $headers = @{}
 $headers.add("Training-Key", $cog_services_training_key)
