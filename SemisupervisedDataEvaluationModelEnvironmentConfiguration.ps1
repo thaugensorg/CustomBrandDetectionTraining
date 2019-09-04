@@ -3,11 +3,8 @@
 while([string]::IsNullOrWhiteSpace($subscription))
   {$subscription= Read-Host -Prompt "Input the name of the subscription where this solution will be deployed"}
 
-$modelLocation = Read-Host -Prompt 'Input the Azure location, data center, where you want this solution deployed.  Note, if you will be using Python functions as part of your solution, As of 8/1/19, Python functions are only available in eastasia, eastus, northcentralus, northeurope, westeurope, and westus.  If you deploy your solution in a different data center network transit time may affect your solution performance.  (default=westus)'
-if ([string]::IsNullOrWhiteSpace($modelLocation)) {$modelLocation = "westus"}
-
-$modelResourceGroupName = Read-Host -Prompt 'Input the name of the resource group that you want to create for this installation of the model.  (default=SemisupervisedDataScienceModel)'
-  if ([string]::IsNullOrWhiteSpace($modelResourceGroupName)) {$modelResourceGroupName = "SemisupervisedDataScienceModel"}
+$modelResourceGroupName = Read-Host -Prompt 'Input the name of the resource group that you want to create for this installation of the model.  (default=MLProfessoarSampleModel)'
+  if ([string]::IsNullOrWhiteSpace($modelResourceGroupName)) {$modelResourceGroupName = "MLProfessoarSampleModel"}
   
 while([string]::IsNullOrWhiteSpace($ModelAppName))
   {$ModelAppName= Read-Host -Prompt "Input the name for the azure function app you want to create for your analysis model. Note this must be a name that is unique across all of Azure"}
@@ -20,6 +17,9 @@ while([string]::IsNullOrWhiteSpace($modelStorageAccountName))
   Write-Host "Storage account name must not have upper case letters." -ForegroundColor "Red"}
   }
 
+$modelLocation = Read-Host -Prompt 'Input the Azure location, data center, where you want this solution deployed.  Note, if you will be using Python functions as part of your solution, As of 8/1/19, Python functions are only available in eastasia, eastus, northcentralus, northeurope, westeurope, and westus.  If you deploy your solution in a different data center network transit time may affect your solution performance.  (default=westus)'
+  if ([string]::IsNullOrWhiteSpace($modelLocation)) {$modelLocation = "westus"}
+  
 $cognitiveServicesAccountName = Read-Host -Prompt 'Input the name of the Azure Cognitive Services resource that you want to create for this installation of the model.  (default=ImageDetection)'
   if ([string]::IsNullOrWhiteSpace($cognitiveServicesAccountName)) {$cognitiveServicesAccountName = "ImageDetection"}
 
