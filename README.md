@@ -1,6 +1,6 @@
 # overview
 
-This script deploys the default training analysis model from Azure Cognitive Services Custom Vision API. This model works with the semisupervised framework to marshal the vision API and return the JSON results of the analysis.  The module can be configured to perform any of the vision analysis services by setting the appropriate environment variable.
+This script deploys the default training analysis model from Azure Cognitive Services Custom Vision API. This model works with the semisupervised framework to marshal the vision API and return the JSON results of the analysis.  The module can be configured to perform any of the vision analysis services by setting the appropriate environment variable.  Note, the installation script only sets up Azure to accept your Python model.  To actually use your Python model you have to deploy your Python code to your Azure function.  Using VS Code to deploy you model is outlined below.
 
 Start by signing up for a free cognitive services account <https://azure.microsoft.com/en-us/try/cognitive-services/> if you do not already have one.  Then log into the Cognitive Services custom model project management portal, it is separate from the Azure Portal, and set up your project.  The portal can be found here: <https://www.customvision.ai>
 
@@ -32,8 +32,6 @@ Start VS Code and open a terminal.  From there run the following commands:
 - install Azure Functions Core Tools from here: npm i -g azure-functions-core-tools --unsafe-perm true  For more information see <https://github.com/Azure/azure-functions-core-tools#installing>
 
 - "pip install -azure-functions" to install azure functions core tools into VS Code.  This enables you to work with azure functions from within VS Code directly enabling things like deploy.
-=======
->>>>>>> e89aaa765eaeafb473e2b6bcf812e8f095f0055a
 
 - "npm install -g azure-functions-core-tools" to install azure functions core tools into VS Code.  This enables you to work with azure functions from within VS Code directly enabling things like deploy.
 - "pip install requests" to install http handling into VS Code.  This will allow you to work with HTTP requests which is the protocol used to communicate between the framework and the model.
