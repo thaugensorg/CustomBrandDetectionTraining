@@ -12,11 +12,10 @@ from azure.cognitiveservices.vision.customvision.training.models import ImageUrl
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('ML Professoar HTTP trigger function TrainModel processed a request.')
 
-    endpoint = "https://westus2.api.cognitive.microsoft.com"
-
     # Get Cognitive Services Environment Variables
     projectID = os.environ["projectID"]
     trainingKey = os.environ['trainingKey']
+    endpoint = os.environ['clientEndpoint']
     publish_iteration_name = "SampleTreeDetection @ " + str(datetime.now())
     prediction_resource_id = os.environ['predictionID']
 

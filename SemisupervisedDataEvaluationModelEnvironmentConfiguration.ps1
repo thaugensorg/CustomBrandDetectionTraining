@@ -94,12 +94,14 @@ $cog_services_training_key = `
     -resourceGroupName $modelResourceGroupName `
     -AccountName $accountName).Key1
 
-Write-Host "Creating cognitive services custom vision project: " + $ModelAppName + "CustomVisionProject" -ForegroundColor "Green"
+Write-Host "Creating cognitive services custom vision project: " $accountName "CustomVisionProject" -ForegroundColor "Green"
 
 $url = "https://" + $modelCogServicesLocation + ".api.cognitive.microsoft.com/customvision/v3.0/training/projects?name=" + $accountName + "CustomVisionProject"
+$url
 
 $headers = @{}
 $headers.add("Training-Key", $cog_services_training_key)
+$headers
 
 Invoke-RestMethod -Uri $url -Headers $headers -Method Post | ConvertTo-Json
 
@@ -145,6 +147,13 @@ az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
     --settings "predictionID=Null"
+
+Write-Host "Creating app config setting: predictionKey for cognitive services." -ForegroundColor "Green"
+
+az functionapp config appsettings set `
+    --name $ModelAppName `
+    --resource-group $modelResourceGroupName `
+    --settings "clientEndpoint=https://$modelCogServicesLocation.api.cognitive.microsoft.com/"
 
 #gitrepo=https://github.com/thaugensorg/semi-supervisedModelSolution.git
 #token=<Replace with a GitHub access token>

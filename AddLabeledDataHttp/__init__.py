@@ -42,7 +42,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 BodyDictionary = json.loads(ImageLabels)
                 BodyDictionary['images'][0]['url'] = BlobUrl
 
-                Endpoint = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Training/projects/" + ProjectID + "/images/urls"
+                Endpoint = os.environ['clientEndpoint']
+
+                Endpoint = Endpoint + "/customvision/v3.0/Training/projects/" + ProjectID + "/images/urls"
 
                 headers = {'Training-key': TrainingKey}
                 response = requests.post(Endpoint, headers=headers,

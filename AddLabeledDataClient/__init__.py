@@ -36,7 +36,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             Labels = []
             CountOfTagsAppliedToTimage = 0
-            Endpoint = "https://westus2.api.cognitive.microsoft.com"
+            Endpoint = os.environ['clientEndpoint']
 
             # Get Cognitive Services Environment Variables
             ProjectID = os.environ["projectID"]

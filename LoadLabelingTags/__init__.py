@@ -33,8 +33,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         
         if LabelsJson:
 
+            endpoint = os.environ['clientEndpoint']
+
             # the consol app at this address shows how to properly form URLs for Cognitive Services custom model development https://westus2.dev.cognitive.microsoft.com/docs/services/fde264b7c0e94a529a0ad6d26550a761/operations/59568ae208fa5e09ecb9984e/console
-            Endpoint = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Training/projects/" + ProjectID + "/tags"
+            Endpoint = endpoint + "/customvision/v3.0/Training/projects/" + ProjectID + "/tags"
 
             # set looping tracking variables
             CountOfLabelsAdded = 0
