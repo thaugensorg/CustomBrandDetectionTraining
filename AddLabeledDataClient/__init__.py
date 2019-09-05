@@ -20,17 +20,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     if dataBlobUrl:
-        ImageLabels = req.params.get('imageLabels')
-        if not ImageLabels:
+        ImageLabelsJson = req.params.get('imageLabels')
+        if not ImageLabelsJson:
             try:
-                ImageLabels = req.get_json()
+                ImageLabelsJson = req.get_json()
             except:
                 return func.HttpResponse(
                     "Please pass JSON containing the labels associated with this image on the query string or in the request body.",
                     status_code=400
                 )
                 
-        if ImageLabels:
+        if ImageLabelsJson:
             # https://pypi.org/project/custom_vision_client/
             # https://github.com/Azure-Samples/cognitive-services-python-sdk-samples/blob/master/samples/vision/custom_vision_training_samples.py
 
@@ -43,14 +43,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             TrainingKey = os.environ['trainingKey']
 
             # strip out list of Image Labels passed in request
-            ImageLabels = json.loads(ImageLabels)
+            ImageLabels = json.loads(ImageLabelsJson)
 
             # retrieve tags from project and loop through them to find tag ids for tags that need to be applied to the image
             Trainer = CustomVisionTrainingClient(TrainingKey, endpoint=Endpoint)
             Tags = Trainer.get_tags(ProjectID)
             for ImageLabel in ImageLabels:
                 for Tag in Tags:
-                    if Tag.name == ImageLabel:
+                    if Tag.name == json.loads(ImageLabel)['label']:
                         Labels.append(Tag.id)
                         CountOfTagsAppliedToTimage = CountOfTagsAppliedToTimage + 1
                         break

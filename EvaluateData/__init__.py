@@ -55,7 +55,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             return func.HttpResponse(json.dumps(responseDictionary))
 
         else:
-            return func.HttpResponse("Model not trained.", status_code=400)
+            return f'Model not trained.'
+            # return func.HttpResponse("Model not trained.", status_code=400)
     else:
         return func.HttpResponse(
              "Please pass a dataBlobUrl on the query string or in the request body",
