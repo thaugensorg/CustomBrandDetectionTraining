@@ -110,7 +110,7 @@ Write-Host "Creating app config setting: subscriptionKey.  There is no default v
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
-    --settings "subscriptionKey=Null"
+    --settings "subscriptionKey=$cog_services_training_key"
 
 Write-Host "Creating app config setting: projectID for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
 
