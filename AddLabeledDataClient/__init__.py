@@ -56,10 +56,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         break
             
             # create the image from a url and attach the appropriate tags as labels.
-            Trainer.create_images_from_urls(ProjectID, [ImageUrlCreateEntry(url=dataBlobUrl, tag_ids=Labels) ])
-
-            return func.HttpResponse(str(CountOfTagsAppliedToTimage) + " Tag(s) applied to image at url: " + dataBlobUrl)
-
+            upload_result = Trainer.create_images_from_urls(ProjectID, [ImageUrlCreateEntry(url=dataBlobUrl, tag_ids=Labels) ])
+            if upload_result.is_batch_successful:
+                return func.HttpResponse(str(CountOfTagsAppliedToTimage) + " Tag(s) applied to image at url: " + dataBlobUrl)
+            else:
+                return func.HttpResponse("Upload of " + dataBlobUrl + " failed.")
 
     else:
         return func.HttpResponse(
