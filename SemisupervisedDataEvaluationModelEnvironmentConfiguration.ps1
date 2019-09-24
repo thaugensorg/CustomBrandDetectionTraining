@@ -103,6 +103,9 @@ $headers = @{}
 $headers.add("Training-Key", $cog_services_training_key)
 $headers
 
+$cog_services_training_key
+$url
+
 Invoke-RestMethod -Uri $url -Headers $headers -Method Post | ConvertTo-Json
 
 Write-Host "Creating app config setting: subscriptionKey.  There is no default value and this key must be filled in after deployment." -ForegroundColor "Yellow"
