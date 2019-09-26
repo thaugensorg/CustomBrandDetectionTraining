@@ -50,7 +50,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             Tags = Trainer.get_tags(ProjectID)
             for ImageLabel in ImageLabels:
                 for Tag in Tags:
-                    if Tag.name == json.loads(ImageLabel)['label']:
+                    if Tag.name == ImageLabel:
                         Labels.append(Tag.id)
                         CountOfTagsAppliedToTimage = CountOfTagsAppliedToTimage + 1
                         break
