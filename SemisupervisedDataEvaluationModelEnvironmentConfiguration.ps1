@@ -13,7 +13,7 @@ while([string]::IsNullOrWhiteSpace($modelStorageAccountName))
   {$modelStorageAccountName= Read-Host -Prompt "Input the name of the azure storage account you want to create for this installation of the model. Note this must be a name that is no longer than 24 characters and only uses lowercase letters and numbers and is unique across all of Azure"
   if ($modelStorageAccountName.length -gt 24){$modelStorageAccountName=$null
   Write-Host "Storage account name cannot be longer than 24 charaters." -ForegroundColor "Red"}
-  if ($modelStorageAccountName -cmatch '[A-Z]') {$modelStorageAccountName=$null
+  if (-Not ($modelStorageAccountName -cmatch "^[a-z0-9]*$")) {$modelStorageAccountName=$null
   Write-Host "Storage account name must not have upper case letters." -ForegroundColor "Red"}
   }
 
