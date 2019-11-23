@@ -15,51 +15,67 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('ML Professoar HTTP trigger function LoadLabelingTags processed a request.')
 
     # Get Cognitive Services Environment Variables
-    ProjectID = os.environ["projectID"]
-    TrainingKey = os.environ['trainingKey']
+    project_id = os.environ["ProjectID"]
+    training_key = os.environ['TrainingKey']
 
-    if ProjectID:
-        LabelsJson = req.params.get('LabelsJson')
-        if not LabelsJson:
-            try:
-                LabelsJson = req.form['LabelsJson']
+    if project_id:
+        try: 
+            labels_json = req.params.get('LabelsJson')
+            if not labels_json:
+                labels_json = req.form.get('LabelsJson')
 
-            except Exception as e:
-                Message = str(e)
-                return func.HttpResponse(
-                    "Please pass JSON containing valid labels on the query string or in the request body using the parameter name: LabelsJson.  Error: " + Message,
-                    status_code=400
-                )
+        except Exception as e:
+            message = str(e)
+            return func.HttpResponse(
+                "Please pass JSON containing valid labels on the query string or in the request body using the parameter name: LabelsJson.  Error: " + message,
+                status_code=400
+            )
         
-        if LabelsJson:
+        if labels_json:
 
-            endpoint = os.environ['clientEndpoint']
+            endpoint = os.environ['ClientEndpoint']
 
             # the consol app at this address shows how to properly form URLs for Cognitive Services custom model development https://westus2.dev.cognitive.microsoft.com/docs/services/fde264b7c0e94a529a0ad6d26550a761/operations/59568ae208fa5e09ecb9984e/console
-            Endpoint = endpoint + "/customvision/v3.0/Training/projects/" + ProjectID + "/tags"
+            if endpoint.endswith("/"):
+                load_tags_url = endpoint + "customvision/v3.0/Training/projects/" + project_id + "/tags"
+            else:
+                load_tags_url = endpoint + "/customvision/v3.0/Training/projects/" + project_id + "/tags"
 
             # set looping tracking variables
-            CountOfLabelsAdded = 0
-            CountOfDuplicateLabels = 0
+            count_of_labels_added = 0
+            count_of_duplicate_labels = 0
+            response_text = ""
 
             # code assumes json is in the form: {"Labels":["Hemlock","Japanese Cherry"]}
-            LabelDictionary = json.loads(LabelsJson)
+            label_dictionary = json.loads(labels_json)
 
             # loop through all labels passed into the function and add them to the project passed into the function
-            for Label in LabelDictionary['Labels']:
-                headers = {'Training-key': TrainingKey}
-                params = {'name': Label}
-                response = requests.post(Endpoint, headers=headers,
+            for label in label_dictionary['Labels']:
+                headers = {'Training-key': training_key}
+                params = {'name': label}
+                response = requests.post(load_tags_url, headers=headers,
                                         params=params)
                 if "TagNameNotUnique" in response.text:
-                    logging.info("Tag " + Label + " is already in project and not unique, project id: " + ProjectID)
-                    CountOfDuplicateLabels = CountOfDuplicateLabels + 1
+                    logging.info("Tag " + label + " is already in project and not unique, project id: " + project_id)
+                    count_of_duplicate_labels = count_of_duplicate_labels + 1
+                elif "error" in response.text:
+                    logging.info("Error: calling " + load_tags_url + " failed with message " + response.text)
+                    response_text = response.text
                 else:
-                    CountOfLabelsAdded = CountOfLabelsAdded + 1
+                    count_of_labels_added = count_of_labels_added + 1
                 
-            return func.HttpResponse("Loaded " + str(CountOfLabelsAdded) + " labels into project id: " + ProjectID + "  Note: " + str(CountOfDuplicateLabels) + " labels were duplicates to existing project labels.  See log file for label names.")
+            if "error" in response_text:
+                return func.HttpResponse(response_text)
+            else:
+                return func.HttpResponse("Loaded " + str(count_of_labels_added) + " labels into project id: " + project_id + "  Note: " + str(count_of_duplicate_labels) + " labels were duplicates to existing project labels.  See log file for label names.")
+
+        else:
+            return func.HttpResponse(
+                "Please pass JSON containing valid labels on the query string or in the request body using the parameter name: LabelsJson.",
+                status_code=400
+            )
     else:
         return func.HttpResponse(
-             "Please configure projectID and/or trainingKey in your environment variables.",
+             "Please configure ProjectID and/or TrainingKey in your environment variables.",
              status_code=400
         )

@@ -3,19 +3,19 @@
 while([string]::IsNullOrWhiteSpace($subscription))
   {$subscription= Read-Host -Prompt "Input the name of the subscription where this solution will be deployed"}
 
-$modelResourceGroupName = Read-Host -Prompt 'Input the name of the resource group that you want to create for this installation of the model.  (default=MLProfessoarSampleModel)'
-  if ([string]::IsNullOrWhiteSpace($modelResourceGroupName)) {$modelResourceGroupName = "MLProfessoarSampleModel"}
+$modelResourceGroupName = Read-Host -Prompt 'Input the name of the resource group that you want to create for this installation of the model.  (default=MLPObjectDetection)'
+  if ([string]::IsNullOrWhiteSpace($modelResourceGroupName)) {$modelResourceGroupName = "MLPObjectDetection"}
+
+  while([string]::IsNullOrWhiteSpace($modelStorageAccountName))
+  {$modelStorageAccountName= Read-Host -Prompt "Input the name of the azure storage account you want to create for this installation of MLP Object Detection model. Note this must be a name that is no longer than 24 characters and only uses lowercase letters and numbers and is unique across all of Azure"
+  if ($modelStorageAccountName.length -gt 24){$modelStorageAccountName=$null
+  Write-Host "Storage account name cannot be longer than 24 charaters." -ForegroundColor "Red"}
+  if(-Not ($modelStorageAccountName -cmatch "^[a-z0-9]*$")) {$modelStorageAccountName=$null
+  Write-Host "Storage account name can only have lowercase letters and numbers." -ForegroundColor "Red"}
+  }
   
 while([string]::IsNullOrWhiteSpace($ModelAppName))
   {$ModelAppName= Read-Host -Prompt "Input the name for the azure function app you want to create for your analysis model. Note this must be a name that is unique across all of Azure"}
-
-while([string]::IsNullOrWhiteSpace($modelStorageAccountName))
-  {$modelStorageAccountName= Read-Host -Prompt "Input the name of the azure storage account you want to create for this installation of the model. Note this must be a name that is no longer than 24 characters and only uses lowercase letters and numbers and is unique across all of Azure"
-  if ($modelStorageAccountName.length -gt 24){$modelStorageAccountName=$null
-  Write-Host "Storage account name cannot be longer than 24 charaters." -ForegroundColor "Red"}
-  if (-Not ($modelStorageAccountName -cmatch "^[a-z0-9]*$")) {$modelStorageAccountName=$null
-  Write-Host "Storage account name must not have upper case letters." -ForegroundColor "Red"}
-  }
 
 $modelLocation = Read-Host -Prompt 'Input the Azure location, data center, where you want this solution deployed.  Note, if you will be using Python functions as part of your solution, As of 8/1/19, Python functions are only available in eastasia, eastus, northcentralus, northeurope, westeurope, and westus.  If you deploy your solution in a different data center network transit time may affect your solution performance.  (default=westus)'
   if ([string]::IsNullOrWhiteSpace($modelLocation)) {$modelLocation = "westus"}
@@ -94,42 +94,71 @@ $cog_services_training_key = `
     -resourceGroupName $modelResourceGroupName `
     -AccountName $accountName).Key1
 
-Write-Host "Creating cognitive services custom vision project: " $accountName "CustomVisionProject" -ForegroundColor "Green"
+Write-Host "Creating app config setting: SubscriptionKey." -ForegroundColor "Green"
 
-$url = "https://" + $modelCogServicesLocation + ".api.cognitive.microsoft.com/customvision/v3.0/training/projects?name=" + $accountName + "CustomVisionProject"
+az functionapp config appsettings set `
+    --name $ModelAppName `
+    --resource-group $modelResourceGroupName `
+    --settings "SubscriptionKey=$cog_services_training_key"
+
+Write-Host "Creating app config setting: ProjectID for cognitive services." -ForegroundColor "Green"
+
+$url = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/training/projects"
+
+  $headers = @{
+      'Training-Key' = $cog_services_training_key }
+
+$projects = (Invoke-RestMethod -Uri $url -Headers $headers -Method Get)
+$projectName = ($projects | Where-Object {$_."name" -eq $accountName + "CustomVisionProject"} | Select-Object -Property name).name
+$generatedProjectName = $ModelAppName + "CustomVisionProject"
+
+if ($null -ne $projectName) {
+  while($projectName -eq $generatedProjectName)
+  {
+    Write-Host "A cognitive services project already exists with the name: " $generatedProjectName -ForegroundColor "Red"
+
+    $projectName= Read-Host -Prompt "Please enter a different cognitive services project name or delete the existing project with the same name using the Cognitive services portal."
+  }
+}
+else {
+  $projectName = $generatedProjectName
+}
+
+Write-Host "Creating cognitive services custom vision project: " $projectName -ForegroundColor "Green"
+
+$url = "https://" + $modelCogServicesLocation + ".api.cognitive.microsoft.com/customvision/v3.0/training/projects?name=" + $projectName
 $url
 
 $headers = @{}
 $headers.add("Training-Key", $cog_services_training_key)
 $headers
 
-$cog_services_training_key
 $url
 
 Invoke-RestMethod -Uri $url -Headers $headers -Method Post | ConvertTo-Json
 
-Write-Host "Creating app config setting: subscriptionKey.  There is no default value and this key must be filled in after deployment." -ForegroundColor "Yellow"
+#get the project id to set as a config value
+$url = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/training/projects"
+
+  $headers = @{
+      'Training-Key' = $cog_services_training_key }
+
+$projects = (Invoke-RestMethod -Uri $url -Headers $headers -Method Get)
+$projectId = ($projects | Where-Object {$_."name" -eq $projectName} | Select-Object -Property id).id
 
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
-    --settings "subscriptionKey=$cog_services_training_key"
+    --settings "ProjectID=$projectId"
 
-Write-Host "Creating app config setting: projectID for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
-
-az functionapp config appsettings set `
-    --name $ModelAppName `
-    --resource-group $modelResourceGroupName `
-    --settings "projectID=Null"
-
-Write-Host "Creating app config setting: trainingKey for cognitive services." -ForegroundColor "Green"
+Write-Host "Creating app config setting: TrainingKey for cognitive services." -ForegroundColor "Green"
 
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
-    --settings "trainingKey=$cog_services_training_key"
+    --settings "TrainingKey=$cog_services_training_key"
 
-Write-Host "Creating app config setting: predictionKey for cognitive services." -ForegroundColor "Green"
+Write-Host "Creating app config setting: PredictionKey for cognitive services." -ForegroundColor "Green"
 
 $accountName = $ModelAppName + "Prediction"
 
@@ -141,35 +170,22 @@ $cog_services_prediction_key = `
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
-    --settings "predictionKey=$cog_services_prediction_key"
+    --settings "PredictionKey=$cog_services_prediction_key"
 
-Write-Host "Creating app config setting: predictionID for cognitive services.  There is no default and this must be filled in after this script completes or the model will not run." -ForegroundColor "Yellow"
-Write-Host "This is called Resource ID in the Cog Services portal and can be found under the Prediction resource on the home page configuration settings of your cog services account https://www.customvision.ai/projects#/settings" -ForegroundColor "Yellow"
+Write-Host "Creating app config setting: ResourceID for cognitive services.  This can be found under the Prediction resource on the HOME PAGE configuration settings of your cog services account https://www.customvision.ai/projects#/settings" -ForegroundColor "Green"
 
-az functionapp config appsettings set `
-    --name $ModelAppName `
-    --resource-group $modelResourceGroupName `
-    --settings "predictionID=Null"
-
-Write-Host "Creating app config setting: predictionKey for cognitive services." -ForegroundColor "Green"
+$subscription_id = (Get-AzureRmSubscription -SubscriptionName Thaugen-semisupervised-vision-closed-loop-solution).Id
+$resource_id = "/subscriptions/" + $subscription_id + "/resourceGroups/" + $modelResourceGroupName + "/providers/Microsoft.CognitiveServices/accounts/" + $accountName
 
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
-    --settings "clientEndpoint=https://$modelCogServicesLocation.api.cognitive.microsoft.com/"
+    --settings "ResourceID=$resource_id"
 
-#gitrepo=https://github.com/thaugensorg/semi-supervisedModelSolution.git
-#token=<Replace with a GitHub access token>
+Write-Host "Creating app config setting: ClientEndpoint for cognitive services." -ForegroundColor "Green"
 
-# Enable authenticated git deployment in your subscription from a private repo.
-#az functionapp deployment source update-token \
-#  --git-token $token
+az functionapp config appsettings set `
+    --name $ModelAppName `
+    --resource-group $modelResourceGroupName `
+    --settings "ClientEndpoint=https://$modelCogServicesLocation.api.cognitive.microsoft.com/"
 
-# Create a function app with source files deployed from the specified GitHub repo.
-#az functionapp create \
-#  --name autoTestDeployment \
-#  --storage-account semisupervisedstorage \
-#  --consumption-plan-location centralUS\
-#  --resource-group customVisionModelTest \
-#  --deployment-source-url https://github.com/thaugensorg/semi-supervisedModelSolution.git \
-#  --deployment-source-branch master

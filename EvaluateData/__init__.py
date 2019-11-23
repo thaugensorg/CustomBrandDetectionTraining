@@ -14,51 +14,60 @@ from azure.cognitiveservices.vision.customvision.prediction import CustomVisionP
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
-    dataBlobUrl = req.params.get('dataBlobUrl')
-    if not dataBlobUrl:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            dataBlobUrl = req_body.get('dataBlobUrl')
+    try:
+        data_url = req.params.get('ImageUrl')
+        if not data_url:
+            data_url = req.form.get('ImageUrl')
 
-    if dataBlobUrl:
+    except ValueError:
+        return func.HttpResponse(
+            "Please pass a ImageUrl on the query string or in the request body",
+            status_code=400
+        )
+
+
+    if data_url:
 
         # Get Cognitive Services Environment Variables
-        projectID = os.environ["projectID"]
-        trainingKey = os.environ['trainingKey']
-        predictionKey = os.environ['predictionKey']
-        clientEndpoint = os.environ['clientEndpoint']
+        project_id = os.environ["projectID"]
+        training_key = os.environ['trainingKey']
+        prediction_key = os.environ['predictionKey']
+        client_endpoint = os.environ['clientEndpoint']
 
 
-        trainer = CustomVisionTrainingClient(trainingKey, endpoint=clientEndpoint)
-        iterations = trainer.get_iterations(projectID)
+        trainer = CustomVisionTrainingClient(training_key, endpoint=client_endpoint)
+        iterations = trainer.get_iterations(project_id)
         if len(iterations) != 0:
 
-            currentIteration = iterations[0]
-            currentIterationName = currentIteration.publish_name
+            # get the name of the current published iteration as that is required in the url
+            current_iteration = iterations[0]
+            current_iteration_name = current_iteration.publish_name
 
-            httpEndpoint = clientEndpoint + "customvision/v3.0/Prediction/" + projectID + "/classify/iterations/" + currentIterationName + "/url"
+            # format the url to call the custom vision model
+            http_endpoint = client_endpoint + "customvision/v3.0/Prediction/" + project_id + "/detect/iterations/" + current_iteration_name + "/url"
 
-            headers = {'Prediction-Key': predictionKey, 'Content-Type': 'application/json'}
-            data = {"url": dataBlobUrl}
-            response = requests.post(httpEndpoint, headers = headers,
+            # add headers and body to the call and get the response
+            headers = {'Prediction-Key': prediction_key, 'Content-Type': 'application/json'}
+            data = {"url": data_url}
+            response = requests.post(http_endpoint, headers = headers,
                                     json = data)
 
-            responseDictionary = response.json()
-            Prediction = responseDictionary['predictions'][0]
-            confidence = Prediction['probability']
-            responseDictionary['confidence'] = confidence
-                
-            # Display the results.
-            return func.HttpResponse(json.dumps(responseDictionary))
+            # format the response to include the required json name 'confidence'
+            response_dictionary = response.json()
+            prediction = response_dictionary['predictions'][0]
+            confidence = prediction['probability']
+            response_dictionary['confidence'] = confidence
+    
+            # return the json results of the object detection custom vision model.
+            return func.HttpResponse(json.dumps(response_dictionary))
 
         else:
-            return f'Model not trained.'
-            # return func.HttpResponse("Model not trained.", status_code=400)
+            return func.HttpResponse(
+                "Model not trained.",
+                status_code=400
+            )
     else:
         return func.HttpResponse(
-             "Please pass a dataBlobUrl on the query string or in the request body",
-             status_code=400
+            "Please pass a ImageUrl on the query string or in the request body",
+            status_code=400
         )
