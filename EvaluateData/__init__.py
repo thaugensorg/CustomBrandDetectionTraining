@@ -29,10 +29,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if data_url:
 
         # Get Cognitive Services Environment Variables
-        project_id = os.environ["projectID"]
-        training_key = os.environ['trainingKey']
-        prediction_key = os.environ['predictionKey']
-        client_endpoint = os.environ['clientEndpoint']
+        project_id = os.environ["ProjectID"]
+        training_key = os.environ['TrainingKey']
+        prediction_key = os.environ['PredictionKey']
+        client_endpoint = os.environ['ClientEndpoint']
 
 
         trainer = CustomVisionTrainingClient(training_key, endpoint=client_endpoint)
@@ -44,7 +44,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             current_iteration_name = current_iteration.publish_name
 
             # format the url to call the custom vision model
-            http_endpoint = client_endpoint + "customvision/v3.0/Prediction/" + project_id + "/detect/iterations/" + current_iteration_name + "/url"
+            http_endpoint = client_endpoint + "customvision/v3.0/Prediction/" + project_id + "/classify/iterations/" + current_iteration_name + "/url"
 
             # add headers and body to the call and get the response
             headers = {'Prediction-Key': prediction_key, 'Content-Type': 'application/json'}

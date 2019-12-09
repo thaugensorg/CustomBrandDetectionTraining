@@ -17,7 +17,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         project_id = os.environ["ProjectID"]
         training_key = os.environ['TrainingKey']
         endpoint = os.environ['ClientEndpoint']
-        publish_iteration_name = "SampleTreeDetection @ " + str(datetime.now())
+        publish_iteration_name = "SampleTreeClassification @ " + str(datetime.now())
         prediction_resource_id = os.environ['ResourceID']
 
     except Exception as e:
@@ -34,7 +34,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         trainer = CustomVisionTrainingClient(training_key, endpoint=endpoint)
 
         try:
-            iteration = trainer.train_project(project_id, force_train=True)
+            #*****TODO***** add notification email
+            iteration = trainer.train_project(project_id, force_train=True) #*****TODO***** turn off force train when releasing
             while (iteration.status != "Completed"):
                 iteration = trainer.get_iteration(project_id, iteration.id)
                 logging.info("Training status: " + iteration.status)

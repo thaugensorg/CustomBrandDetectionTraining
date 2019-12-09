@@ -13,6 +13,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('ML Professoar HTTP trigger function AddLabeledDataClient processed a request.')
 
     try:
+        # retrieve the parameters from the multi-part form http request
         image_url = req.form.get('ImageUrl')
         image_labeling_json = req.form.get('DataLabels')
     except:
@@ -21,6 +22,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             status_code=400
         )
 
+    # validate both parameters were passed into the function
     if image_url and image_labeling_json:
         labels = []
         count_of_labels_applied_to_image = 0
@@ -39,12 +41,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         # retrieve tags from project and loop through them to find tag ids for tags that need to be applied to the image
         tags = trainer.get_tags(project_id)
-        for image_label in image_labeling_data:
-            for tag in tags:
-                if tag.name == image_label:
-                    labels.append(tag.id)
-                    count_of_labels_applied_to_image = count_of_labels_applied_to_image + 1
-                    break
+        image_label = image_labeling_data["label"]
+        for tag in tags:
+            if tag.name == image_label:
+                labels.append(tag.id)
+                count_of_labels_applied_to_image = count_of_labels_applied_to_image + 1
+                break
         
         # create the image from a url and attach the appropriate tags as labels.
         upload_result = trainer.create_images_from_urls(project_id, [ImageUrlCreateEntry(url=image_url, tag_ids=labels) ])
