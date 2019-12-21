@@ -1,24 +1,42 @@
-# instructions and documentation for this solution have been moved to the Read Me file in the solution
+Param(
+  [Parameter(Mandatory=$true)] [string] $subscription, 
+  [Parameter(Mandatory=$true)] [string] $modelResourceGroupName,
+  [Parameter(mandatory=$true)] [string] $modelLocation,
+  [Parameter(mandatory=$true)] [string] $modelAppName,
+  [Parameter(mandatory=$true)] [string] $modelStorageAccountName,
+  [Parameter(mandatory=$true)] [string] $cognitiveServicesAccountName,
+  [Parameter(mandatory=$true)] [string] $imageAnalysisEndpoint
+)
 
-while([string]::IsNullOrWhiteSpace($subscription))
-  {$subscription= Read-Host -Prompt "Input the name of the subscription where this solution will be deployed"}
+while([string]::IsNullOrWhiteSpace($subscription)){
+  $subscription= Read-Host -Prompt "Input the name of the subscription where this solution will be deployed"}
 
-$modelResourceGroupName = Read-Host -Prompt 'Input the name of the resource group that you want to create for this installation of the model.  (default=MLPObjectDetection)'
-  if ([string]::IsNullOrWhiteSpace($modelResourceGroupName)) {$modelResourceGroupName = "MLPObjectDetection"}
+while([string]::IsNullOrWhiteSpace($modelLocation)){
+  $modelLocation = Read-Host -Prompt 'Input the Azure location, data center, where you want this solution deployed.  Note, if you will be using Python functions as part of your solution, As of 8/1/19, Python functions are only available in eastasia, eastus, northcentralus, northeurope, westeurope, and westus.  If you deploy your solution in a different data center network transit time may affect your solution performance.'}
 
-  while([string]::IsNullOrWhiteSpace($modelStorageAccountName))
-  {$modelStorageAccountName= Read-Host -Prompt "Input the name of the azure storage account you want to create for this installation of MLP Object Detection model. Note this must be a name that is no longer than 24 characters and only uses lowercase letters and numbers and is unique across all of Azure"
-  if ($modelStorageAccountName.length -gt 24){$modelStorageAccountName=$null
-  Write-Host "Storage account name cannot be longer than 24 charaters." -ForegroundColor "Red"}
-  if(-Not ($modelStorageAccountName -cmatch "^[a-z0-9]*$")) {$modelStorageAccountName=$null
-  Write-Host "Storage account name can only have lowercase letters and numbers." -ForegroundColor "Red"}
+while([string]::IsNullOrWhiteSpace($modelResourceGroupName)){
+  $modelResourceGroupName = Read-Host -Prompt 'Input the name of the resource group that you want to create for this installation of the model.'}
+
+#*****TODO***** enable "-" char in storage account name.
+$validStorageAccountName = $false
+$minLength = $false
+$maxLength = $false
+$charSet = $false
+while(-not $validStorageAccountName){
+  if ($modelStorageAccountName.length -lt 2){
+    $modelStorageAccountName = Read-Host -Prompt "Storage account name $modelStorageAccountName cannot be shorter than 2 charaters"
+  }else {$minLength = $true}
+  if ($modelStorageAccountName.length -gt 24){
+    $modelStorageAccountName = Read-Host -Prompt "Storage account name $modelStorageAccountName cannot be longer than 24 charaters"
+  }else {$maxLength = $true}
+  if (-Not ($modelStorageAccountName -cmatch "^[a-z0-9]*$")) {
+    $modelStorageAccountName = Read-Host -Prompt "Storage account name $modelStorageAccountName can only contain lowercase letters, numbers, and -"
+  }else {$charSet = $true}
+  if ($minLength -and $maxLength -and $charSet){$validStorageAccountName = $true}
   }
   
 while([string]::IsNullOrWhiteSpace($ModelAppName))
   {$ModelAppName= Read-Host -Prompt "Input the name for the azure function app you want to create for your analysis model. Note this must be a name that is unique across all of Azure"}
-
-$modelLocation = Read-Host -Prompt 'Input the Azure location, data center, where you want this solution deployed.  Note, if you will be using Python functions as part of your solution, As of 8/1/19, Python functions are only available in eastasia, eastus, northcentralus, northeurope, westeurope, and westus.  If you deploy your solution in a different data center network transit time may affect your solution performance.  (default=westus)'
-  if ([string]::IsNullOrWhiteSpace($modelLocation)) {$modelLocation = "westus"}
 
 $modelStorageAccountKey = $null
 
@@ -94,16 +112,11 @@ $cog_services_training_key = `
     -resourceGroupName $modelResourceGroupName `
     -AccountName $accountName).Key1
 
-Write-Host "Creating app config setting: SubscriptionKey." -ForegroundColor "Green"
-
-az functionapp config appsettings set `
-    --name $ModelAppName `
-    --resource-group $modelResourceGroupName `
-    --settings "SubscriptionKey=$cog_services_training_key"
+Write-Host "Creating app config setting: SubscriptionKey using account: $accountName and training key: $cog_services_training_key." -ForegroundColor "Green"
 
 Write-Host "Creating app config setting: ProjectID for cognitive services." -ForegroundColor "Green"
 
-$url = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/training/projects"
+$url = "https://$modelCogServicesLocation.api.cognitive.microsoft.com/customvision/v3.0/training/projects"
 
   $headers = @{
       'Training-Key' = $cog_services_training_key }
@@ -146,17 +159,17 @@ $url = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/training/p
 $projects = (Invoke-RestMethod -Uri $url -Headers $headers -Method Get)
 $projectId = ($projects | Where-Object {$_."name" -eq $projectName} | Select-Object -Property id).id
 
-az functionapp config appsettings set `
-    --name $ModelAppName `
-    --resource-group $modelResourceGroupName `
-    --settings "ProjectID=$projectId"
-
-Write-Host "Creating app config setting: TrainingKey for cognitive services." -ForegroundColor "Green"
+$subscription_id = (Get-AzureRmSubscription -SubscriptionName Thaugen-semisupervised-vision-closed-loop-solution).Id
+$resource_id = "/subscriptions/" + $subscription_id + "/resourceGroups/" + $modelResourceGroupName + "/providers/Microsoft.CognitiveServices/accounts/" + $accountName
 
 az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
-    --settings "TrainingKey=$cog_services_training_key"
+    --settings "ProjectID=$projectId " `
+    "TrainingKey=$cog_services_training_key " `
+    "ClientEndpoint=https://$modelCogServicesLocation.api.cognitive.microsoft.com/ " `
+    "SubscriptionKey=$cog_services_training_key " `
+    "ResourceID=$resource_id"
 
 Write-Host "Creating app config setting: PredictionKey for cognitive services." -ForegroundColor "Green"
 
@@ -171,21 +184,3 @@ az functionapp config appsettings set `
     --name $ModelAppName `
     --resource-group $modelResourceGroupName `
     --settings "PredictionKey=$cog_services_prediction_key"
-
-Write-Host "Creating app config setting: ResourceID for cognitive services.  This can be found under the Prediction resource on the HOME PAGE configuration settings of your cog services account https://www.customvision.ai/projects#/settings" -ForegroundColor "Green"
-
-$subscription_id = (Get-AzureRmSubscription -SubscriptionName Thaugen-semisupervised-vision-closed-loop-solution).Id
-$resource_id = "/subscriptions/" + $subscription_id + "/resourceGroups/" + $modelResourceGroupName + "/providers/Microsoft.CognitiveServices/accounts/" + $accountName
-
-az functionapp config appsettings set `
-    --name $ModelAppName `
-    --resource-group $modelResourceGroupName `
-    --settings "ResourceID=$resource_id"
-
-Write-Host "Creating app config setting: ClientEndpoint for cognitive services." -ForegroundColor "Green"
-
-az functionapp config appsettings set `
-    --name $ModelAppName `
-    --resource-group $modelResourceGroupName `
-    --settings "ClientEndpoint=https://$modelCogServicesLocation.api.cognitive.microsoft.com/"
-
