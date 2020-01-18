@@ -22,6 +22,7 @@ $command = '.\MLProfessoarEngineConfig.ps1 ' +`
     '-tagsUploadServiceEndpoint https://' + $modelAppName + '.azurewebsites.net/api/LoadLabelingTags ' +`
     '-LabeledDataServiceEndpoint https://' + $modelAppName + '.azurewebsites.net/api/AddLabeledData ' +`
     '-LabelingSolutionName VoTT ' +`
-    '-labelingTagsParameterName labelsJson'
+    '-labelingTagsParameterName labelsJson ' +`
+    '-testFileCount 20'
 
 Invoke-Expression $command

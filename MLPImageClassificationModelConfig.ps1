@@ -41,7 +41,7 @@ while([string]::IsNullOrWhiteSpace($ModelAppName))
 $modelStorageAccountKey = $null
 
 if (az group exists --name $modelResourceGroupName) `
-  {Write-Host "Deleting resource group." -ForegroundColor "Green" `
+  {Write-Host "Deleting resource group." -ForegroundColor "Green" 
   az group delete `
 	  --name $modelResourceGroupName `
 	  --subscription $subscription `
@@ -117,6 +117,7 @@ Write-Host "Creating app config setting: SubscriptionKey using account: $account
 Write-Host "Creating app config setting: ProjectID for cognitive services." -ForegroundColor "Green"
 
 $url = "https://$modelCogServicesLocation.api.cognitive.microsoft.com/customvision/v3.0/training/projects"
+Write-Host "URL = $url"
 
   $headers = @{
       'Training-Key' = $cog_services_training_key }

@@ -1,8 +1,9 @@
 $subscription = 'Thaugen-semisupervised-vision-closed-loop-solution'
 $location = 'westus'
 $solutionNameRoot = 'MLPImgClass' # must be less than 20 characters or the storage acount variable must be provided as a constant
-$modelAppName = $solutionNameRoot + 'App'
-$storageAccountName = $solutionNameRoot.ToLower() + 'strg'
+$modelResourceGroupName = $solutionNameRoot + 'Model'
+$modelAppName = $modelResourceGroupName + 'App'
+$storageAccountName = $modelResourceGroupName.ToLower() + 'strg'
 $cognitiveServicesAccountName = $modelAppName
 $cognitiveServicesImageAnalysisEndpoint = 'https://westus.api.cognitive.microsoft.com/vision/v2.0/analyze'
 
@@ -37,6 +38,7 @@ $command = '.\MLProfessoarEngineConfig.ps1 ' +`
     '-tagsUploadServiceEndpoint https://' + $modelAppName + '.azurewebsites.net/api/LoadLabelingTags ' +`
     '-LabeledDataServiceEndpoint https://' + $modelAppName + '.azurewebsites.net/api/AddLabeledData ' +`
     '-LabelingSolutionName VoTT ' +`
-    '-labelingTagsParameterName labelsJson'
+    '-labelingTagsParameterName labelsJson ' +`
+    '-testFileCount 20'
 
 Invoke-Expression $command
