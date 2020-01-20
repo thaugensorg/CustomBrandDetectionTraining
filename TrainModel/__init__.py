@@ -17,7 +17,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         project_id = os.environ["ProjectID"]
         training_key = os.environ['TrainingKey']
         endpoint = os.environ['ClientEndpoint']
-        publish_iteration_name = "SampleTreeClassification @ " + str(datetime.now())
+        publish_iteration_name = "SampleTreeClassification"
         prediction_resource_id = os.environ['ResourceID']
 
     except Exception as e:
@@ -39,7 +39,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             while (iteration.status != "Completed"):
                 iteration = trainer.get_iteration(project_id, iteration.id)
                 logging.info("Training status: " + iteration.status)
-                time.sleep(1)
+                time.sleep(5)   
 
             # The iteration is now trained. Publish it to the project endpoint
             trainer.publish_iteration(project_id, iteration.id, publish_iteration_name, prediction_resource_id)

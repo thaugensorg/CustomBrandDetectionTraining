@@ -115,6 +115,7 @@ $cog_services_training_key = `
 Write-Host "Creating app config setting: SubscriptionKey using account: $accountName and training key: $cog_services_training_key." -ForegroundColor "Green"
 
 Write-Host "Creating app config setting: ProjectID for cognitive services." -ForegroundColor "Green"
+Write-Host "Looking up existing projects.  It is OK if this errors as it simply means there are no projects."
 
 $url = "https://$modelCogServicesLocation.api.cognitive.microsoft.com/customvision/v3.0/training/projects"
 Write-Host "URL = $url"
@@ -140,25 +141,34 @@ else {
 
 Write-Host "Creating cognitive services custom vision project: " $projectName -ForegroundColor "Green"
 
-$url = "https://" + $modelCogServicesLocation + ".api.cognitive.microsoft.com/customvision/v3.0/training/projects?name=" + $projectName
-$url
+$retryCount = 0
+$maxRetryCount = 3
+$sleepLength = 5
+while (-not $projectId -and $retryCount -lt $maxRetryCount) {
+  Write-Host "Cog Services project create try $retryCount + 1 of $maxRetryCount"
+  $url = "https://" + $modelCogServicesLocation + ".api.cognitive.microsoft.com/customvision/v3.0/training/projects?name=" + $projectName
 
-$headers = @{}
-$headers.add("Training-Key", $cog_services_training_key)
-$headers
+  $headers = @{}
+  $headers.add("Training-Key", $cog_services_training_key)
+  $headers
 
-$url
+  $url
 
-Invoke-RestMethod -Uri $url -Headers $headers -Method Post | ConvertTo-Json
+  Invoke-RestMethod -Uri $url -Headers $headers -Method Post | ConvertTo-Json
 
-#get the project id to set as a config value
-$url = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/training/projects"
+  #get the project id to set as a config value
+  $url = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/training/projects"
 
   $headers = @{
-      'Training-Key' = $cog_services_training_key }
+    'Training-Key' = $cog_services_training_key }
 
-$projects = (Invoke-RestMethod -Uri $url -Headers $headers -Method Get)
-$projectId = ($projects | Where-Object {$_."name" -eq $projectName} | Select-Object -Property id).id
+  $projects = (Invoke-RestMethod -Uri $url -Headers $headers -Method Get)
+  $projects
+  $projectId = ($projects | Where-Object {$_."name" -eq $projectName} | Select-Object -Property id).id
+  $retryCount = $retryCount + 1
+  Start-Sleep -s $sleepLength
+  $sleepLength = $sleepLength + $sleepLength
+}
 
 $subscription_id = (Get-AzureRmSubscription -SubscriptionName Thaugen-semisupervised-vision-closed-loop-solution).Id
 $resource_id = "/subscriptions/" + $subscription_id + "/resourceGroups/" + $modelResourceGroupName + "/providers/Microsoft.CognitiveServices/accounts/" + $accountName

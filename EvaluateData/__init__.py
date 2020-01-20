@@ -36,12 +36,18 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
 
         trainer = CustomVisionTrainingClient(training_key, endpoint=client_endpoint)
+        #predictor = CustomVisionPredictionClient(prediction_key, endpoint=client_endpoint)
+
         iterations = trainer.get_iterations(project_id)
         if len(iterations) != 0:
 
             # get the name of the current published iteration as that is required in the url
             current_iteration = iterations[0]
             current_iteration_name = current_iteration.publish_name
+            #current_iteration_name = current_iteration.name
+
+            # cannot use the client as it does not return detailed http response
+            #results = predictor.classify_image_url(project_id, current_iteration_name, data_url)
 
             # format the url to call the custom vision model
             http_endpoint = client_endpoint + "customvision/v3.0/Prediction/" + project_id + "/classify/iterations/" + current_iteration_name + "/url"
@@ -56,6 +62,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             response_dictionary = response.json()
             prediction = response_dictionary['predictions'][0]
             confidence = prediction['probability']
+            #confidence = results.predictions[0].probability
             response_dictionary['confidence'] = confidence
     
             # return the json results of the object detection custom vision model.
