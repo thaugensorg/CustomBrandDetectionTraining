@@ -31,7 +31,7 @@
     "blobSearchServiceName": "bindinghashsearch",
     "blobSearchKey": "@Microsoft.KeyVault(SecretUri=https://mlprofessoarkeyvault.vault.azure.net:443/secrets/blobSearchKey/cf96fd907cd349ba84006ce9bc2172b1)",
     "labelingSolutionName": "FileName",
-    "KeyVaultName": "MLProfessoarKeyVault",
+    "KeyVaultName": "MLPImgClassEngineKV",
     "TestFileCount": "20"
   }
 }

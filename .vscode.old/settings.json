@@ -1,0 +1,11 @@
+{
+  "azureFunctions.deploySubpath": "MLPImageClassification.zip",
+  "azureFunctions.pythonVenv": ".env",
+  "azureFunctions.projectLanguage": "Python",
+  "azureFunctions.projectRuntime": "~2",
+  "debug.internalConsoleOptions": "neverOpen",
+  "azureFunctions.preDeployTask": "func: pack --build-remote",
+  "python.pythonPath": ".env\\Scripts\\python.exe",
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true
+}
